@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Neon Universe</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;600;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --h:265;
+  --bg:#f5f2ff; --fg:#17122b; --muted:#5b5478;
+  --card:rgba(255,255,255,.65); --line:rgba(23,18,43,.12);
+  --a1:hsl(var(--h) 85% 55%); --a2:hsl(calc(var(--h) + 120) 85% 45%);
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#07060f; --fg:#ecebff; --muted:#9d98c4;
+    --card:rgba(255,255,255,.05); --line:rgba(255,255,255,.12);
+    --a1:hsl(var(--h) 95% 65%); --a2:hsl(calc(var(--h) + 120) 95% 60%);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#07060f; --fg:#ecebff; --muted:#9d98c4;
+  --card:rgba(255,255,255,.05); --line:rgba(255,255,255,.12);
+  --a1:hsl(var(--h) 95% 65%); --a2:hsl(calc(var(--h) + 120) 95% 60%);
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--bg);color:var(--fg);
+  font-family:"Prompt","Noto Sans Thai",system-ui,sans-serif;
+  overflow-x:hidden;transition:background .4s;
+}
+canvas{position:fixed;inset:0;width:100%;height:100%;z-index:0}
+main{position:relative;z-index:1;max-width:980px;margin:0 auto;padding:0 22px 60px}
+.hero{min-height:88vh;display:flex;flex-direction:column;justify-content:center;gap:22px}
+.tag{
+  align-self:flex-start;font-size:12px;letter-spacing:.2em;padding:6px 14px;
+  border:1px solid var(--line);border-radius:99px;color:var(--muted);background:var(--card);
+  backdrop-filter:blur(8px);
+}
+h1{
+  margin:0;font-weight:800;line-height:1.08;font-size:clamp(44px,12vw,104px);
+  background:linear-gradient(100deg,var(--a1),var(--a2),var(--a1));background-size:200% auto;
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  animation:flow 6s linear infinite;
+  filter:drop-shadow(0 0 22px color-mix(in srgb,var(--a1) 45%,transparent));
+}
+@keyframes flow{to{background-position:200% center}}
+.sub{margin:0;max-width:520px;font-weight:300;font-size:clamp(16px,4vw,20px);color:var(--muted);line-height:1.7}
+.btns{display:flex;gap:12px;flex-wrap:wrap}
+button{
+  font:inherit;font-weight:600;cursor:pointer;border-radius:14px;padding:14px 24px;
+  border:1px solid var(--line);color:var(--fg);background:var(--card);backdrop-filter:blur(8px);
+  transition:transform .15s,box-shadow .2s;
+}
+button.main{
+  border:0;color:#fff;background:linear-gradient(120deg,var(--a1),var(--a2));
+  box-shadow:0 0 28px color-mix(in srgb,var(--a1) 55%,transparent);
+}
+button:active{transform:scale(.95)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-top:20px}
+.card{
+  padding:26px;border-radius:22px;border:1px solid var(--line);background:var(--card);
+  backdrop-filter:blur(12px);transition:transform .25s,border-color .25s;
+}
+.card:hover{transform:translateY(-6px);border-color:var(--a1)}
+.card .n{font-size:13px;color:var(--a1);font-weight:600;letter-spacing:.15em}
+.card h3{margin:10px 0 8px;font-size:22px}
+.card p{margin:0;color:var(--muted);font-weight:300;line-height:1.7}
+.stats{display:flex;gap:30px;flex-wrap:wrap;margin:60px 0 10px;justify-content:space-between}
+.stats b{display:block;font-size:44px;font-weight:800;color:var(--a2)}
+.stats span{color:var(--muted);font-size:14px}
+footer{margin-top:50px;text-align:center;color:var(--muted);font-size:13px}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<main>
+  <section class="hero">
+    <div class="tag">NEON · INTERACTIVE · 2026</div>
+    <h1>สร้างจักรวาล<br>ของคุณเอง</h1>
+    <p class="sub">ขยับเมาส์หรือลากนิ้วเพื่อดึงดาวเข้าหา แตะเพื่อสร้างระลอกพลังงาน แล้วเปลี่ยนโทนสีของโลกใบนี้ได้ตามใจ</p>
+    <div class="btns">
+      <button class="main" id="hue">🎨 เปลี่ยนสี</button>
+      <button id="boom">💥 ระเบิดดาว</button>
+      <button id="theme">🌓 สลับโหมด</button>
+    </div>
+  </section>
+
+  <section class="grid">
+    <div class="card"><div class="n">01</div><h3>ดึงดูด</h3><p>อนุภาคทุกดวงตอบสนองต่อปลายนิ้วของคุณแบบเรียลไทม์</p></div>
+    <div class="card"><div class="n">02</div><h3>เชื่อมโยง</h3><p>ดาวที่อยู่ใกล้กันจะถักทอเป็นเส้นแสงเหมือนใยประสาท</p></div>
+    <div class="card"><div class="n">03</div><h3>ปรับแต่ง</h3><p>เปลี่ยนสีและโหมดสว่างหรือมืดได้ในแตะเดียว</p></div>
+  </section>
+
+  <section class="stats">
+    <div><b id="s1">0</b><span>ดาวที่มีชีวิต</span></div>
+    <div><b id="s2">0</b><span>เส้นแสงที่เชื่อมอยู่</span></div>
+    <div><b id="s3">0</b><span>ครั้งที่คุณแตะ</span></div>
+  </section>
+  <footer>Made with Claude ✦</footer>
+</main>
+
+<script>
+const cv=document.getElementById('c'),cx=cv.getContext('2d');
+let W,H,DPR=Math.min(devicePixelRatio||1,2);
+function resize(){W=innerWidth;H=innerHeight;cv.width=W*DPR;cv.height=H*DPR;cx.setTransform(DPR,0,0,DPR,0,0)}
+addEventListener('resize',resize);resize();
+
+let pts=[],ptr={x:-999,y:-999},taps=0,links=0;
+const N=Math.round(Math.min(110,W*H/9000));
+function mk(x,y,burst){
+  const a=Math.random()*6.283,s=burst?2+Math.random()*4:.3+Math.random()*.5;
+  return{x:x??Math.random()*W,y:y??Math.random()*H,vx:Math.cos(a)*s,vy:Math.sin(a)*s,r:1+Math.random()*1.8,life:burst?1:null};
+}
+for(let i=0;i<N;i++)pts.push(mk());
+
+function move(e){const t=e.touches?e.touches[0]:e;ptr.x=t.clientX;ptr.y=t.clientY}
+addEventListener('pointermove',move);
+addEventListener('touchmove',move,{passive:true});
+addEventListener('pointerdown',e=>{
+  if(e.target.closest('button'))return;
+  taps++;burst(e.clientX,e.clientY,18);
+});
+function burst(x,y,n){for(let i=0;i<n;i++)pts.push(mk(x,y,true))}
+
+const root=document.documentElement;let hue=265;
+document.getElementById('hue').onclick=()=>{hue=(hue+55)%360;root.style.setProperty('--h',hue)};
+document.getElementById('boom').onclick=()=>{taps++;burst(W/2,H/2,60)};
+document.getElementById('theme').onclick=()=>{
+  const dark=getComputedStyle(root).getPropertyValue('--bg').trim()==='#07060f';
+  root.dataset.theme=dark?'light':'dark';
+};
+
+function col(name){return getComputedStyle(root).getPropertyValue(name).trim()}
+let c1=col('--a1'),c2=col('--a2'),tick=0;
+
+function frame(){
+  if(tick++%20===0){c1=col('--a1');c2=col('--a2')}
+  cx.clearRect(0,0,W,H);
+  links=0;
+  for(let i=pts.length-1;i>=0;i--){
+    const p=pts[i];
+    const dx=ptr.x-p.x,dy=ptr.y-p.y,d=Math.hypot(dx,dy);
+    if(d<190){p.vx+=dx/d*.05;p.vy+=dy/d*.05}
+    p.vx*=.985;p.vy*=.985;
+    const sp=Math.hypot(p.vx,p.vy);
+    if(sp<.25&&p.life===null){p.vx*=1.02;p.vy*=1.02}
+    p.x+=p.vx;p.y+=p.vy;
+    if(p.x<0||p.x>W)p.vx*=-1;
+    if(p.y<0||p.y>H)p.vy*=-1;
+    if(p.life!==null){p.life-=.004;if(p.life<=0){pts.splice(i,1);continue}}
+    cx.globalAlpha=p.life??1;
+    cx.fillStyle=i%2?c1:c2;
+    cx.shadowBlur=12;cx.shadowColor=cx.fillStyle;
+    cx.beginPath();cx.arc(p.x,p.y,p.r,0,6.283);cx.fill();
+  }
+  cx.shadowBlur=0;
+  for(let i=0;i<pts.length;i++){
+    for(let j=i+1;j<pts.length;j++){
+      const a=pts[i],b=pts[j],d=Math.hypot(a.x-b.x,a.y-b.y);
+      if(d<110){
+        cx.globalAlpha=(1-d/110)*.5;cx.strokeStyle=c1;cx.lineWidth=.8;
+        cx.beginPath();cx.moveTo(a.x,a.y);cx.lineTo(b.x,b.y);cx.stroke();links++;
+      }
+    }
+  }
+  cx.globalAlpha=1;
+  requestAnimationFrame(frame);
+}
+frame();
+setInterval(()=>{
+  s1.textContent=pts.length;s2.textContent=links;s3.textContent=taps;
+},200);
+</script>
+</body>
+</html>
